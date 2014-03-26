@@ -1,0 +1,28 @@
+{
+  "name": "poe-ui-kit",
+  "version": "0.1.0",
+  "description": "A starter kit for poe user interface applications",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/poegroup/poe-ui-kit.git"
+  },
+  "keywords": [
+    "poe",
+    "ui"
+  ],
+  "author": "Cameron Bytheway <bytheway.cameron@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/poegroup/poe-ui-kit/issues"
+  },
+  "homepage": "https://github.com/poegroup/poe-ui-kit",
+  "dependencies": {
+    "envs": "^0.1.4",
+    "simple-assets": "^0.1.0",
+    "simple-stack-common": "^0.2.3"
+  }
+}
