@@ -21,8 +21,18 @@
   },
   "homepage": "https://github.com/poegroup/poe-ui-kit",
   "dependencies": {
+    "clean-css": "^2.1.7",
+    "component": "^0.19.7",
+    "component-builder": "^0.12.0",
+    "component-filter": "^0.1.1",
+    "component-require": "^0.3.1",
     "envs": "^0.1.4",
+    "jade": "^1.1.4",
+    "jshint": "^2.4.4",
+    "nghtml": "^0.2.0",
+    "shoelace-stylus": "^1.1.5",
     "simple-assets": "^0.1.0",
-    "simple-stack-common": "^0.2.3"
+    "simple-stack-common": "^0.2.3",
+    "uglify-js": "^2.4.13"
   }
 }

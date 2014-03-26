@@ -1,51 +1,71 @@
 # poe-ui-kit builder
 
-### Setup targets for app files
+### Source files
 
-JS_FILES      = $(shell find public -type f -name '*.js')
-CSS_FILES     = $(shell find public -type f -name '*.css')
-STYL_FILES    = $(shell find public -type f -name '*.styl')
-PARTIAL_FILES = $(shell find public -type f -name '*.jade')
+JS_SRC      = $(shell find public -type f -name '*.js')
+CSS_SRC     = $(shell find public -type f -name '*.css')
+STYL_SRC    = $(shell find public -type f -name '*.styl')
+PARTIAL_SRC = $(shell find public -type f -name '*.jade')
+SRC         = $(JS_SRC) $(CSS_SRC) $(STYL_SRC) $(PARTIAL_SRC)
 
-### Resolve some commonly used paths
+### Out files
 
-POE         = $(CURDIR)/node_modules/poe-ui
-POE_BIN     = $(POE)/node_modules/.bin
-COMP_FILTER	  = $(POE)/node_modules/component-filter
-STYLE_BUILDER    ?= $(POE)/node_modules/shoelace-stylus
+CSS_OUT = build/style.css
+JS_OUT  = build/app.js build/vendor.js build/require.js
+OUT     = $(CSS_OUT) $(JS_OUT)
+
+### Min files
+
+CSS_MIN = $(CSS_OUT:.css=.min.css)
+JS_MIN  = $(JS_OUT:.js=.min.js)
+MIN     = $(CSS_MIN) $(JS_MIN)
+
+### Find the poe-ui-kit directory
+
+POE = $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+
+### Add node_modules executables to the path
+
+LOCAL_PATH := $(CURDIR)/node_modules/.bin:$(POE)/node_modules/.bin
+PATH := $(LOCAL_PATH):$(PATH)
+
+### Setup paths to local node_modules
+
+COMP_FILTER = $(POE)/node_modules/component-filter
+STYLE_BUILDER ?= $(POE)/node_modules/shoelace-stylus
 
 ### Define component builder functions
 
 define COMPONENT_BUILD_CSS
-$(POE_BIN)/component build --use $(COMP_FILTER)/scripts,$(COMP_FILTER)/json,$(COMP_FILTER)/templates,$(STYLE_BUILDER) --name style
+PATH=$(PATH) component build \
+  --use $(COMP_FILTER)/scripts,$(COMP_FILTER)/json,$(COMP_FILTER)/templates,$(STYLE_BUILDER) \
+  --name style
 rm -f build/style.js
 endef
 
-define COMPONENT_BUILD_JS_APP
-$(POE_BIN)/component build --copy --no-require --use $(POE)/plugins/nghtml,$(COMP_FILTER)/vendor,$(COMP_FILTER)/styles --name app
-endef
-
-define COMPONENT_BUILD_JS_VENDOR
-$(POE_BIN)/component build --copy --no-require --use $(POE)/plugins/nghtml,$(COMP_FILTER)/app,$(COMP_FILTER)/styles --name vendor
-endef
-
-define COMPONENT_BUILD_JS_REQUIRE
-mkdir -p build
-cp $(POE)/node_modules/component-require/lib/require.js build/require.js
+define COMPONENT_BUILD_JS
+PATH=$(PATH) component build \
+  --copy \
+  --no-require \
+  --name $1 \
+  --use $(POE)/plugins/nghtml,$(COMP_FILTER)/styles,$(COMP_FILTER)/$2
 endef
 
 ### Define some generic build targets
 
-build   : install lint build/require.js build/app.js build/style.css build/vendor.js
-prod    : build build/require.min.js build/app.min.js build/style.min.css build/vendor.min.js manifest.json
+build   : install lint $(OUT)
+prod    : build $(MIN) manifest.json
 install : node_modules components
 
-### Define a generic way to start the application
+### General targets
 
 start: build .env
 	@foreman start
 
-### Setup app build targets
+clean:
+	rm -fr build components manifest.json
+
+### Install targets
 
 .env: .env.example
 	@cp $< $@
@@ -54,39 +74,49 @@ node_modules: package.json
 	@npm install
 
 components: component.json
-	@$(POE_BIN)/component install
+	@PATH=$(PATH) component install
+
+### Javscript targets
 
 build/require.js:
-	@$(call COMPONENT_BUILD_JS_REQUIRE)
+	@mkdir -p build
+	@cp $(POE)/node_modules/component-require/lib/require.js $@
 
-build/require.min.js: build/require.js
-	@$(POE_BIN)/uglifyjs --compress --mangle -o $@ $<
-
-build/app.js: $(JS_FILES) $(PARTIAL_FILES) component.json
-	@$(call COMPONENT_BUILD_JS_APP)
-
-build/app.min.js: build/app.js
-	@$(POE_BIN)/uglifyjs --compress --mangle -o $@ $<
+build/app.js: $(JS_SRC) $(PARTIAL_SRC) component.json
+	@$(call COMPONENT_BUILD_JS,app,vendor)
 
 build/vendor.js: component.json
-	@$(call COMPONENT_BUILD_JS_VENDOR)
+	@$(call COMPONENT_BUILD_JS,vendor,app)
 
-build/vendor.min.js: build/vendor.js
-	@$(POE_BIN)/uglifyjs --compress --mangle -o $@ $<
+build/%.min.js: $(JS_OUT)
+	@uglifyjs \
+	  --compress \
+	  --mangle \
+	  -o $@ $<
 
-build/style.css: $(CSS_FILES) $(STYL_FILES) component.json
+### CSS Targets
+
+build/style.css: $(CSS_SRC) $(STYL_SRC) component.json
 	@$(call COMPONENT_BUILD_CSS)
 
-build/style.min.css: build/style.css
-	@$(POE_BIN)/cleancss --remove-empty --s0 --skip-import --output $@ $<
+build/%.min.css: $(CSS_OUT)
+	@PATH=$(PATH) cleancss \
+	  --remove-empty \
+	  --s0 \
+	  --skip-import \
+	  --output $@ $<
 
-lint: $(JS_FILES)
-	@$(POE_BIN)/jshint app.js public/javascripts/*
+### Lint/test targets
 
-manifest.json: $(wildcard build/*)
-	@$(POE_BIN)/simple-assets --glob 'build/**/!(cache-)*' --copy --prefix cache-
+lint: $(JS_SRC)
+	@PATH=$(PATH) jshint app.js public/javascripts/*
 
-clean:
-	rm -fr build components manifest.json
+### Production targets
+
+manifest.json: $(MIN)
+	@PATH=$(PATH) simple-assets \
+	  --glob 'build/**/!(cache-)*' \
+	  --copy \
+	  --prefix cache-
 
 .PHONY: clean build prod install lint
