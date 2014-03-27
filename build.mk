@@ -31,6 +31,7 @@ PATH := $(LOCAL_PATH):$(PATH)
 
 ### Setup paths to local node_modules
 
+COMP_AUTOLOAD = $(POE)/node_modules/component-autoload
 COMP_FILTER = $(POE)/node_modules/component-filter
 STYLE_BUILDER ?= $(POE)/node_modules/shoelace-stylus
 
@@ -38,8 +39,9 @@ STYLE_BUILDER ?= $(POE)/node_modules/shoelace-stylus
 
 define COMPONENT_BUILD_CSS
 PATH=$(PATH) component build \
-  --use $(COMP_FILTER)/scripts,$(COMP_FILTER)/json,$(COMP_FILTER)/templates,$(STYLE_BUILDER) \
-  --name style
+  --copy \
+  --name style \
+  --use $(COMP_AUTOLOAD),$(COMP_FILTER)/scripts,$(COMP_FILTER)/json,$(COMP_FILTER)/templates,$(STYLE_BUILDER)
 rm -f build/style.js
 endef
 
@@ -48,7 +50,7 @@ PATH=$(PATH) component build \
   --copy \
   --no-require \
   --name $1 \
-  --use $(POE)/plugins/nghtml,$(COMP_FILTER)/styles,$(COMP_FILTER)/$2
+  --use $(COMP_AUTOLOAD),$(COMP_FILTER)/styles,$(POE)/plugins/nghtml,$(COMP_FILTER)/$2
 endef
 
 ### Define some generic build targets
@@ -82,11 +84,15 @@ build/require.js:
 	@mkdir -p build
 	@cp $(POE)/node_modules/component-require/lib/require.js $@
 
+### TODO: remove the extra aliases in the app.js caused by the autoloader
 build/app.js: $(JS_SRC) $(PARTIAL_SRC) component.json
 	@$(call COMPONENT_BUILD_JS,app,vendor)
 
+### WARNING: HACK! We have to remove the last line of the vendor file because
+###                of the way component handles plugins. Laaaaaaame.
 build/vendor.js: component.json
 	@$(call COMPONENT_BUILD_JS,vendor,app)
+	@sed -i '' -e '$$ d' $@
 
 build/%.min.js: $(JS_OUT)
 	@uglifyjs \

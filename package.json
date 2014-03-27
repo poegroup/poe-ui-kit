@@ -23,6 +23,7 @@
   "dependencies": {
     "clean-css": "^2.1.7",
     "component": "^0.19.7",
+    "component-autoload": "^0.1.0",
     "component-builder": "^0.12.0",
     "component-filter": "^0.1.1",
     "component-require": "^0.3.1",
