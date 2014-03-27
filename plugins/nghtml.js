@@ -11,7 +11,7 @@ module.exports = function(builder) {
   nghtml({
     webroot: 'public',
     extension: '.jade',
-    confProp: 'angular-templates',
+    confProp: 'partials',
     hook: function (content, filename) {
       var opts = {
         filename: filename
