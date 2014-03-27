@@ -22,7 +22,7 @@ MIN     = $(CSS_MIN) $(JS_MIN)
 
 ### Find the poe-ui-kit directory
 
-POE = $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+POE := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
 ### Add node_modules executables to the path
 
