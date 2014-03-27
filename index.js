@@ -33,6 +33,9 @@ exports = module.exports = function(opts) {
     base: headers
   });
 
+  // expose the app root
+  app.set('root', root);
+
   // use jade as the view engine
   app.set('view engine', 'jade');
   app.engine('jade', require('jade').__express);
@@ -83,6 +86,12 @@ exports = module.exports = function(opts) {
 };
 
 /**
+ * Expose the middleware
+ */
+
+exports.middleware = stack.middleware;
+
+/**
  * Load the package.json from root
  *
  * @param {String} root
@@ -102,14 +111,13 @@ function loadPackage(root) {
  */
 
 function initAssetLocals(cdn) {
-
   function lookup(file, base, useCdn) {
     return (useCdn ? cdn : '') + base + '/' + assets(file);
   }
 
   function styles(min, base) {
     return [
-      lookup(min ? 'build/style.min.css' : 'build/style.css', min, base)
+      lookup(min ? 'build/style.min.css' : 'build/style.css', base, min)
     ];
   }
 
