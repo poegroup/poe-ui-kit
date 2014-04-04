@@ -88,29 +88,31 @@ build/require.js:
 build/app.js: $(JS_SRC) $(PARTIAL_SRC) component.json
 	@$(call COMPONENT_BUILD_JS,app,vendor)
 
+
 ### WARNING: HACK! We have to remove the last line of the vendor file because
 ###                of the way component handles plugins. Laaaaaaame.
 build/vendor.js: component.json
 	@$(call COMPONENT_BUILD_JS,vendor,app)
-	@sed -i '' -e '$$ d' $@
+	@TMP_FILE=$$RANDOM && \
+	 head -n -1 $@ > $$TMP_FILE ; mv $$TMP_FILE $@
 
-build/%.min.js: $(JS_OUT)
+build/%.min.js: $(filter-out min,build/%.js)
 	@uglifyjs \
 	  --compress \
 	  --mangle \
-	  -o $@ $<
+	  -o $@ $?
 
 ### CSS Targets
 
 build/style.css: $(CSS_SRC) $(STYL_SRC) component.json
 	@$(call COMPONENT_BUILD_CSS)
 
-build/%.min.css: $(CSS_OUT)
+build/%.min.css: $(filter-out min,build/%.css)
 	@PATH=$(PATH) cleancss \
 	  --remove-empty \
 	  --s0 \
 	  --skip-import \
-	  --output $@ $<
+	  --output $@ $?
 
 ### Lint/test targets
 
