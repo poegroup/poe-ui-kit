@@ -94,7 +94,7 @@ build/app.js: $(JS_SRC) $(PARTIAL_SRC) component.json
 build/vendor.js: component.json
 	@$(call COMPONENT_BUILD_JS,vendor,app)
 	@TMP_FILE=$$RANDOM && \
-	 head -n -1 $@ > $$TMP_FILE ; mv $$TMP_FILE $@
+	 head -n -1 $@ > $$TMP_FILE && mv $$TMP_FILE $@
 
 build/%.min.js: $(filter-out min,build/%.js)
 	@uglifyjs \
