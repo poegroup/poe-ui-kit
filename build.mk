@@ -81,8 +81,8 @@ components: component.json
 ### Javscript targets
 
 build/require.js:
-	@mkdir -p build
-	@cp $(POE)/node_modules/component-require/lib/require.js $@
+	@mkdir -p build && \
+	 mv $(POE)/node_modules/component-require/lib/require.js $@
 
 ### TODO: remove the extra aliases in the app.js caused by the autoloader
 build/app.js: $(JS_SRC) $(PARTIAL_SRC) component.json
@@ -92,9 +92,9 @@ build/app.js: $(JS_SRC) $(PARTIAL_SRC) component.json
 ### WARNING: HACK! We have to remove the last line of the vendor file because
 ###                of the way component handles plugins. Laaaaaaame.
 build/vendor.js: component.json
-	@$(call COMPONENT_BUILD_JS,vendor,app)
-	@TMP_FILE=$$RANDOM && \
-	 head -n -1 $@ > $$TMP_FILE && mv $$TMP_FILE $@
+	@$(call COMPONENT_BUILD_JS,vendor,app) && \
+	 TMP_FILE=$$RANDOM && \
+	 head -n -1 $@ > $$TMP_FILE.tmp && mv $$TMP_FILE.tmp $@
 
 build/%.min.js: $(filter-out min,build/%.js)
 	@uglifyjs \
