@@ -82,7 +82,7 @@ components: component.json
 
 build/require.js:
 	@mkdir -p build && \
-	 mv $(POE)/node_modules/component-require/lib/require.js $@
+	 cp $(POE)/node_modules/component-require/lib/require.js $@
 
 ### TODO: remove the extra aliases in the app.js caused by the autoloader
 build/app.js: $(JS_SRC) $(PARTIAL_SRC) component.json
