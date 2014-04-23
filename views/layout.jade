@@ -1,0 +1,54 @@
+doctype html
+html
+  head
+    meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
+    block title
+      title= title
+    meta(name='description', content=description)
+    meta(name='author', content=author)
+
+    //- redirect users without JS enabled to noscript page.
+    //- NOTE: in the near future this will set a cookie indicating
+    //-       the server needs to render the page instead of the
+    //-       client; for now we redirect to an error page
+    if noscriptRedirect
+      noscript
+        meta(http-equiv="refresh", content="0; url=noscript")
+
+    //- the default setting for the viewport prevents zooming on mobile
+    //- to disable this behavior override the 'viewport' block
+    block viewport
+      meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0')
+
+    //- add any additional meta tags with the 'meta' block
+    block meta
+
+    block styles
+      each style in styles
+        link(href=style, rel="stylesheet")
+
+    //- add any extra head elements with the 'head' block
+    block head
+
+    //- use https://github.com/ded/script.js to load scripts async
+    script(src=loader)
+
+    //- add any other needed IE shims or remove them with 'ie-shims'
+    block ie-shims
+      | <!--[if lte IE 9]>
+      script(src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.2/html5shiv.js")
+      script(src="https://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js")
+      script(src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.1.0/es5-shim.min.js")
+      script(src=ieFixesScript)
+      | <![endif]-->
+
+  body
+    block content
+
+    block scripts
+      script.
+        $script('!{requireScript}', function() { $script(!{JSON.stringify(scripts)}, '!{app}'); });
+    if process.env.NODE_ENV === "development"
+      script.
+        $script('!{base}/livereload.js?snipver=1');

@@ -11,7 +11,7 @@ SRC         = $(JS_SRC) $(CSS_SRC) $(STYL_SRC) $(PARTIAL_SRC)
 ### Out files
 
 CSS_OUT = build/style.css
-JS_OUT  = build/app.js build/vendor.js build/require.js
+JS_OUT  = build/app.js build/vendor.js build/require.js build/ie-fixes.js build/script.js
 OUT     = $(CSS_OUT) $(JS_OUT)
 
 ### Min files
@@ -29,35 +29,11 @@ POE := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 LOCAL_PATH := $(CURDIR)/node_modules/.bin:$(POE)/node_modules/.bin
 PATH := $(LOCAL_PATH):$(PATH)
 
-### Setup paths to local node_modules
-
-COMP_AUTOLOAD = $(POE)/node_modules/component-autoload
-COMP_FILTER = $(POE)/node_modules/component-filter
-STYLE_BUILDER ?= $(POE)/node_modules/shoelace-stylus
-
-### Define component builder functions
-
-define COMPONENT_BUILD_CSS
-PATH=$(PATH) component build \
-  --copy \
-  --name style \
-  --use $(COMP_AUTOLOAD),$(COMP_FILTER)/scripts,$(COMP_FILTER)/json,$(COMP_FILTER)/templates,$(STYLE_BUILDER)
-rm -f build/style.js
-endef
-
-define COMPONENT_BUILD_JS
-PATH=$(PATH) component build \
-  --copy \
-  --no-require \
-  --name $1 \
-  --use $(COMP_AUTOLOAD),$(COMP_FILTER)/styles,$(POE)/plugins/nghtml,$(COMP_FILTER)/$2
-endef
-
 ### Define some generic build targets
 
 build   : install lint $(OUT)
 prod    : build $(MIN) manifest.json
-install : node_modules components
+install : node_modules
 
 ### General targets
 
@@ -75,26 +51,24 @@ clean:
 node_modules: package.json
 	@npm install
 
-components: component.json
-	@PATH=$(PATH) component install
-
 ### Javscript targets
+
+build/script.js:
+	@curl https://raw.githubusercontent.com/ded/script.js/v2.5.3/dist/script.js -o $@
+
+build/ie-fixes.js:
+	@mkdir -p build && \
+	 cp $(POE)/src/ie-fixes.js $@
 
 build/require.js:
 	@mkdir -p build && \
-	 cp $(POE)/node_modules/component-require/lib/require.js $@
+	 cp $(POE)/node_modules/component-require2/index.js $@
 
-### TODO: remove the extra aliases in the app.js caused by the autoloader
 build/app.js: $(JS_SRC) $(PARTIAL_SRC) component.json
-	@$(call COMPONENT_BUILD_JS,app,vendor)
+	@$(POE)/bin/build-app-scripts $(CURDIR) $(CURDIR)/$@
 
-
-### WARNING: HACK! We have to remove the last line of the vendor file because
-###                of the way component handles plugins. Laaaaaaame.
 build/vendor.js: component.json
-	@$(call COMPONENT_BUILD_JS,vendor,app) && \
-	 TMP_FILE=$$RANDOM && \
-	 sed '$$d' $@ > $$TMP_FILE.tmp && mv $$TMP_FILE.tmp $@
+	@$(POE)/bin/build-vendor-scripts $(CURDIR) $(CURDIR)/$@
 
 build/%.min.js: $(filter-out min,build/%.js)
 	@uglifyjs \
@@ -105,7 +79,7 @@ build/%.min.js: $(filter-out min,build/%.js)
 ### CSS Targets
 
 build/style.css: $(CSS_SRC) $(STYL_SRC) component.json
-	@$(call COMPONENT_BUILD_CSS)
+	@$(POE)/bin/build-styles $(CURDIR) $(CURDIR)/$@
 
 build/%.min.css: $(filter-out min,build/%.css)
 	@PATH=$(PATH) cleancss \

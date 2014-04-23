@@ -123,7 +123,6 @@ function initAssetLocals(cdn) {
 
   function scripts(min, base) {
     return [
-      lookup(min ? 'build/require.min.js' : 'build/require.js', base, min),
       lookup(min ? 'build/vendor.min.js' : 'build/vendor.js', base, min),
       lookup(min ? 'build/app.min.js' : 'build/app.js', base, min)
     ];
@@ -139,6 +138,9 @@ function initAssetLocals(cdn) {
       pretty: min,
       styles: styles(min, base),
       scripts: scripts(min, base),
+      requireScript: lookup(min ? 'build/require.min.js' : 'build/require.js', base, min),
+      ieFixesScript: lookup(min ? 'build/ie-fixes.min.js' : 'build/ie-fixes.js', base, min),
+      loader: lookup(min ? 'build/script.min.js' : 'build/script.js', base, min),
       noscriptRedirect: !req.cookies.noscript,
       pretty: !min
     });
