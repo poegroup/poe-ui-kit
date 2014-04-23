@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+
+require('../lib/builder').scripts(process.argv[2], 'vendor', process.argv[3]);
