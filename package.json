@@ -31,10 +31,12 @@
     "component-resolver": "^1.1.1",
     "component-builder": "^1.1.4",
     "component-require2": "^1.0.1",
+    "component-github-content-api": "^0.1.0",
     "glob": "^3.2.9",
     "minimatch": "^0.2.14",
     "stylus": "^0.43.1",
     "nib": "^1.0.2",
-    "mkdirp": "^0.4.0"
+    "mkdirp": "^0.4.0",
+    "remotes": "^1.1.3"
   }
 }
