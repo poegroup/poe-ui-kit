@@ -91,7 +91,7 @@ build/%.min.css: $(filter-out min,build/%.css)
 ### Lint/test targets
 
 lint: $(JS_SRC)
-	@PATH=$(PATH) jshint app.js public/javascripts/*
+	@PATH=$(PATH) eslint app.js public/javascripts/*
 
 ### Production targets
 
