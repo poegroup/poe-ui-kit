@@ -40,6 +40,9 @@ html
       script(src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.2/html5shiv.js")
       script(src="https://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js")
       script(src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.1.0/es5-shim.min.js")
+      //- used for clients that don't support push state
+      script.
+        window.basePath=!{basePath};
       script(src=ieFixesScript)
       | <![endif]-->
 

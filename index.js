@@ -142,7 +142,8 @@ function initAssetLocals(cdn) {
       ieFixesScript: lookup(min ? 'build/ie-fixes.min.js' : 'build/ie-fixes.js', base, min),
       loader: lookup(min ? 'build/script.min.js' : 'build/script.js', base, min),
       noscriptRedirect: !req.cookies.noscript,
-      pretty: !min
+      pretty: !min,
+      basePath: req.get('x-orig-path') || '/'
     });
     next();
   };
