@@ -6,6 +6,7 @@ var stack = require('simple-stack-common');
 var envs = require('envs');
 var assets = require('simple-assets');
 var urlparse = require('url').parse;
+var extname = require('path').extname;
 
 /**
  * Forwarding headers
@@ -111,20 +112,20 @@ function loadPackage(root) {
  */
 
 function initAssetLocals(cdn) {
-  function lookup(file, base, useCdn) {
-    return (useCdn ? cdn : '') + base + '/' + assets(file);
+  function lookup(file, base, min) {
+    return cdn + base + '/' + assets(file, min);
   }
 
   function styles(min, base) {
     return [
-      lookup(min ? 'build/style.min.css' : 'build/style.css', base, min)
+      lookup('build/style.css', base, min)
     ];
   }
 
   function scripts(min, base) {
     return [
-      lookup(min ? 'build/vendor.min.js' : 'build/vendor.js', base, min),
-      lookup(min ? 'build/app.min.js' : 'build/app.js', base, min)
+      lookup('build/vendor.js', base, min),
+      lookup('build/app.js', base, min)
     ];
   }
 
@@ -134,16 +135,21 @@ function initAssetLocals(cdn) {
 
     if (base === '/') base = '';
 
+    function asset(path) {
+      return lookup(path, base, min);
+    }
+
     res.locals({
       pretty: min,
       styles: styles(min, base),
       scripts: scripts(min, base),
-      requireScript: lookup(min ? 'build/require.min.js' : 'build/require.js', base, min),
-      ieFixesScript: lookup(min ? 'build/ie-fixes.min.js' : 'build/ie-fixes.js', base, min),
-      loader: lookup(min ? 'build/script.min.js' : 'build/script.js', base, min),
+      requireScript: asset('build/require.js'),
+      ieFixesScript: asset('build/ie-fixes.js'),
+      loader: asset('build/script.js'),
       noscriptRedirect: !req.cookies.noscript,
       pretty: !min,
-      basePath: req.get('x-orig-path') || '/'
+      basePath: req.get('x-orig-path') || '/',
+      asset: asset
     });
     next();
   };
