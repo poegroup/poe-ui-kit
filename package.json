@@ -1,6 +1,6 @@
 {
   "name": "poe-ui-kit",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "A starter kit for poe user interface applications",
   "main": "index.js",
   "scripts": {
