@@ -1,3 +1,7 @@
 #!/usr/bin/env node
 
-require('../lib/builder').scripts(process.argv[2], 'vendor', process.argv[3]);
+require('poe-ui-builder').scripts(process.argv[2], 'vendor', process.argv[3], function(err) {
+  if (!err) process.exit(0);
+  console.error(err.stack || err);
+  process.exit(1);
+});

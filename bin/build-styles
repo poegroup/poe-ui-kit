@@ -1,3 +1,7 @@
 #!/usr/bin/env node
 
-require('../lib/builder').styles(process.argv[2], process.argv[3]);
+require('poe-ui-builder').styles(process.argv[2], null, process.argv[3], function(err) {
+  if (!err) process.exit(0);
+  console.error(err.stack || err);
+  process.exit(1);
+});

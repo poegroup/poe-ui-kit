@@ -28,15 +28,9 @@
     "simple-assets": "^0.1.0",
     "simple-stack-common": "^0.2.3",
     "uglify-js": "^2.4.13",
-    "component-resolver": "^1.1.1",
-    "component-builder": "^1.1.4",
     "component-require2": "^1.0.1",
-    "component-github-content-api": "^0.1.0",
-    "glob": "^3.2.9",
-    "minimatch": "^0.2.14",
-    "stylus": "^0.43.1",
-    "nib": "^1.0.2",
-    "mkdirp": "^0.4.0",
-    "remotes": "^1.1.3"
+    "poe-ui-builder": "^0.1.2",
+    "stylus": "^0.43.0",
+    "nib": "^1.0.2"
   }
 }
