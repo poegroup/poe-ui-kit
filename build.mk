@@ -71,7 +71,7 @@ build/vendor.js: component.json
 	@$(POE)/bin/build-vendor-scripts $(CURDIR) $(CURDIR)/$@
 
 build/%.min.js: $(filter-out min,build/%.js)
-	@uglifyjs \
+	@PATH=$(PATH) uglifyjs \
 	  --compress \
 	  --mangle \
 	  -o $@ $?
