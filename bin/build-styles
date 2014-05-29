@@ -1,7 +1,28 @@
 #!/usr/bin/env node
 
-require('poe-ui-builder').styles(process.argv[2], null, process.argv[3], function(err) {
-  if (!err) process.exit(0);
+var extname = require('path').extname;
+var path = process.argv[2];
+var builder = require('poe-ui-builder');
+var merge = require('utils-merge');
+
+builder.styles(path, null, process.argv[3], {poe: true}, function(err) {
+  if (!err) return;
   console.error(err.stack || err);
   process.exit(1);
+});
+
+var component = require(path + '/component.json');
+var extra = component['extra'] || {};
+
+Object.keys(extra).forEach(function(out) {
+  if (extname(out) !== '.css') return;
+  var conf = merge({}, component);
+  conf.styles = extra[out];
+  delete conf.dependencies;
+
+  builder.styles(conf, null, out, {ignoreFiles: true}, function(err) {
+    if (!err) return;
+    console.error(err.stack || err);
+    process.exit(1);
+  });
 });
