@@ -10,8 +10,9 @@ SRC         = $(JS_SRC) $(CSS_SRC) $(STYL_SRC) $(PARTIAL_SRC)
 
 ### Out files
 
-CSS_OUT = build/style.css
-JS_OUT  = build/app.js build/vendor.js build/require.js build/ie-fixes.js build/script.js
+EXTRAS  := $(shell node -p "Object.keys(require('./component.json').extra || {}).join(' ')")
+CSS_OUT = build/style.css $(filter %.css,$(EXTRAS))
+JS_OUT  = build/app.js build/vendor.js build/require.js build/ie-fixes.js build/script.js $(filter %.js,$(EXTRAS))
 OUT     = $(CSS_OUT) $(JS_OUT)
 
 ### Min files
@@ -70,7 +71,7 @@ build/app.js: $(JS_SRC) $(PARTIAL_SRC) component.json
 build/vendor.js: component.json
 	@$(POE)/bin/build-vendor-scripts $(CURDIR) $(CURDIR)/$@
 
-build/%.min.js: $(filter-out min,build/%.js)
+build/%.min.js: build/%.js
 	@PATH=$(PATH) uglifyjs \
 	  --compress \
 	  --mangle \
@@ -81,17 +82,16 @@ build/%.min.js: $(filter-out min,build/%.js)
 build/style.css: $(CSS_SRC) $(STYL_SRC) component.json
 	@$(POE)/bin/build-styles $(CURDIR) $(CURDIR)/$@
 
-build/%.min.css: $(filter-out min,build/%.css)
+build/%.min.css: build/%.css
 	@PATH=$(PATH) cleancss \
-	  --remove-empty \
 	  --s0 \
 	  --skip-import \
 	  --output $@ $?
 
 ### Lint/test targets
 
-lint: $(JS_SRC)
-	@PATH=$(PATH) jshint app.js public/javascripts/*
+lint: app.js $(JS_SRC)
+	@PATH=$(PATH) jshint $?
 
 ### Production targets
 
