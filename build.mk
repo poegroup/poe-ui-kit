@@ -10,10 +10,12 @@ SRC         = $(JS_SRC) $(CSS_SRC) $(STYL_SRC) $(PARTIAL_SRC)
 
 ### Out files
 
-EXTRAS  := $(shell node -p "Object.keys(require('./component.json').extra || {}).join(' ')")
-CSS_OUT = build/style.css $(filter %.css,$(EXTRAS))
-JS_OUT  = build/app.js build/vendor.js build/require.js build/ie-fixes.js build/script.js $(filter %.js,$(EXTRAS))
-OUT     = $(CSS_OUT) $(JS_OUT)
+EXTRAS    := $(shell node -p "Object.keys(require('./component.json').extra || {}).join(' ')")
+CSS_EXTRA = $(filter %.css,$(EXTRAS))
+CSS_OUT   = build/style.css $(CSS_EXTRA)
+JS_EXTRA  = $(filter %.js,$(EXTRAS))
+JS_OUT    = build/app.js build/vendor.js build/require.js build/ie-fixes.js build/script.js $(JS_EXTRA)
+OUT       = $(CSS_OUT) $(JS_OUT)
 
 ### Min files
 
@@ -71,22 +73,32 @@ build/app.js: $(JS_SRC) $(PARTIAL_SRC) component.json
 build/vendor.js: component.json
 	@$(POE)/bin/build-vendor-scripts $(CURDIR) $(CURDIR)/$@
 
-build/%.min.js: build/%.js
+$(JS_EXTRA): build/app.js
+
+define UGLIFYJS
+$(1:.js=.min.js): $(1)
 	@PATH=$(PATH) uglifyjs \
 	  --compress \
 	  --mangle \
-	  -o $@ $?
+	  -o $$@ $$?
+endef
+$(foreach i,$(JS_OUT),$(eval $(call UGLIFYJS,$(i))))
 
 ### CSS Targets
 
 build/style.css: $(CSS_SRC) $(STYL_SRC) component.json
 	@$(POE)/bin/build-styles $(CURDIR) $(CURDIR)/$@
 
-build/%.min.css: build/%.css
+$(CSS_EXTRA): build/style.css
+
+define CLEANCSS
+$(1:.css=.min.css): $(1)
 	@PATH=$(PATH) cleancss \
 	  --s0 \
 	  --skip-import \
-	  --output $@ $?
+	  --output $$@ $$?
+endef
+$(foreach i,$(CSS_OUT),$(eval $(call CLEANCSS,$(i))))
 
 ### Lint/test targets
 
