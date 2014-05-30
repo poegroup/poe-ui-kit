@@ -10,7 +10,9 @@ SRC         = $(JS_SRC) $(CSS_SRC) $(STYL_SRC) $(PARTIAL_SRC)
 
 ### Out files
 
+ifneq ($(MAKECMDGOALS),init)
 EXTRAS    := $(shell node -p "Object.keys(require('./component.json').extra || {}).join(' ')")
+endif
 CSS_EXTRA = $(filter %.css,$(EXTRAS))
 CSS_OUT   = build/style.css $(CSS_EXTRA)
 JS_EXTRA  = $(filter %.js,$(EXTRAS))
