@@ -5,6 +5,9 @@
 
   if (history.pushState) return;
 
+  // Are we one the vision router?
+  if (window.location.hash === "" && window.location.pathname.charAt(1) === "_") return;
+
   // if hashbang not found then convert link to hashbang mode
   if (window.location.hash.charAt(1) !== "!") {
     var base = window.basePath;
