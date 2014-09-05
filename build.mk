@@ -5,7 +5,7 @@
 JS_SRC      = $(shell find public -type f -name '*.js')
 CSS_SRC     = $(shell find public -type f -name '*.css')
 STYL_SRC    = $(shell find public -type f -name '*.styl')
-PARTIAL_SRC = $(shell find public -type f -name '*.jade')
+PARTIAL_SRC = $(shell find public -type f -name '*.jade') $(shell find public -type f -name '*.html')
 SRC         = $(JS_SRC) $(CSS_SRC) $(STYL_SRC) $(PARTIAL_SRC)
 
 ### Out files
