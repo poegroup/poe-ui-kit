@@ -135,8 +135,9 @@ function initAssetLocals(cdn) {
 
     if (base === '/') base = '';
 
-    function asset(path) {
-      return lookup(path, base, min);
+    function asset(path, doMin) {
+      if (typeof doMin === 'undefined') doMin = min;
+      return lookup(path, base, doMin);
     }
 
     res.locals({
