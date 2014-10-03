@@ -4,9 +4,10 @@
 
 var stack = require('simple-stack-common');
 var envs = require('envs');
-var assets = require('simple-assets');
 var urlparse = require('url').parse;
 var extname = require('path').extname;
+var NODE_ENV = envs('NODE_ENV', 'production');
+var DEVELOPMENT = NODE_ENV === 'development';
 
 /**
  * Forwarding headers
@@ -39,6 +40,7 @@ exports = module.exports = function(opts) {
 
   // use jade as the view engine
   app.set('view engine', 'jade');
+  app.set('views', root + '/src');
   app.engine('jade', require('jade').__express);
 
   // load the package.json for locals
@@ -83,6 +85,8 @@ exports = module.exports = function(opts) {
     res.render('noscript');
   });
 
+  initBuilder(app);
+
   return app;
 };
 
@@ -111,42 +115,47 @@ function loadPackage(root) {
  * Initialize the asset locals middleware
  */
 
-function initAssetLocals(cdn) {
-  function lookup(file, base, min) {
-    return cdn + base + '/' + assets(file, min);
+function initAssetLocals(cdn, root) {
+  var manifests = {
+    pretty: {},
+    min: {}
+  };
+  function lookup(file, min) {
+    // var type = min ? 'min' : 'pretty';
+    // var group = manifests[type];
+    // if (!group) group = manifests[type] = require(root + '/manifest.json');
+    // var manifest = group[file];
+    // if (!manifest) manifest = group[file];
+    return file;
   }
 
-  function styles(min, base) {
-    return [
-      lookup('build/style.css', base, min)
+  function scripts(min) {
+    if (DEVELOPMENT) return [
+      lookup('/build/main.js', min)
     ];
-  }
 
-  function scripts(min, base) {
     return [
-      lookup('build/vendor.js', base, min),
-      lookup('build/app.js', base, min)
+      // lookup('/build/app-98efb1fe187401284857.js', min)
+      // TODO lookup the file for the current route they're hitting
     ];
   }
 
   return function assetLocals(req, res, next) {
-    var min = req.get('x-env') === 'production';
+    var min = (req.get('x-env') || NODE_ENV) === 'production';
+
     var base = urlparse(req.base).pathname;
 
     if (base === '/') base = '';
 
-    function asset(path) {
-      return lookup(path, base, min);
+    function asset(path, doMin) {
+      if (typeof doMin === 'undefined') doMin = min;
+      return lookup(path, base, doMin);
     }
 
     res.locals({
-      pretty: min,
-      styles: styles(min, base),
+      cdn: cdn + base + '/build',
       scripts: scripts(min, base),
-      requireScript: asset('build/require.js'),
-      ieFixesScript: asset('build/ie-fixes.js'),
-      loader: asset('build/script.js'),
-      noscriptRedirect: !req.cookies.noscript,
+      base: base,
       pretty: !min,
       basePath: req.get('x-orig-path') || '/',
       asset: asset
@@ -165,4 +174,60 @@ function initFeatureFlags(enabled) {
     if (enabled && enabled !== req.cookies.features) res.cookie('features', enabled);
     next();
   };
+}
+
+function initBuilder(app) {
+  if (!DEVELOPMENT) return;
+  var WebpackDevServer = require('webpack-dev-server');
+  var colors = require('colors');
+  var socketio = require('webpack-dev-server/node_modules/socket.io');
+  var config = require('directiv-core-builder')(app.get('root') + '/src');
+
+  var compiler = config.load();
+  var WEBPACK_DEBUG = typeof envs('WEBPACK_DEBUG') !== 'undefined';
+  var server = new WebpackDevServer(compiler, {
+    contentBase: false,
+    publicPath: '',
+    hot: true,
+    stats: WEBPACK_DEBUG
+  });
+
+  app.use('/build', 'webpack', server.app);
+
+  if (!WEBPACK_DEBUG) {
+    compiler.plugin('done', function(stats) {
+      var warns = stats.compilation.warnings;
+      if (warns.length) {
+        console.log('====WARNINGS====\n'.yellow);
+        warns.forEach(function(warn) {
+          console.warn(warn.module.context.yellow + ':\n' + warn.message + '\n');
+        })
+      }
+
+      var errs = stats.compilation.errors;
+      if (errs.length) {
+        console.error('====ERRORS====\n'.red);
+        errs.forEach(function(err) {
+          console.error(err.module.context.red + ':\n' + err.stack || err.message || err);
+        });
+      }
+    });
+  }
+
+  app.on('ready', function(httpServer) {
+    server.io = socketio.listen(httpServer, {
+      'log level': 1
+    });
+    server.io.sockets.on('connection', function(socket) {
+      if(this.hot) socket.emit('hot');
+      if(!this._stats) return;
+      this._sendStats(socket, this._stats.toJson());
+    }.bind(server));
+  });
+
+  process.on('SIGTERM', close);
+  process.on('SIGINT', close);
+  function close() {
+    server.middleware.close();
+  }
 }

@@ -25,14 +25,9 @@ html
     block meta
 
     block styles
-      each style in styles
-        link(href=style, rel="stylesheet")
 
     //- add any extra head elements with the 'head' block
     block head
-
-    //- use https://github.com/ded/script.js to load scripts async
-    script(src=loader)
 
     //- add any other needed IE shims or remove them with 'ie-shims'
     block ie-shims
@@ -40,18 +35,14 @@ html
       script(src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.2/html5shiv.js")
       script(src="https://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js")
       script(src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.1.0/es5-shim.min.js")
-      //- used for clients that don't support push state
-      script.
-        window.basePath='!{basePath}';
-      script(src=ieFixesScript)
       | <![endif]-->
 
   body
     block content
 
-    block scripts
-      script.
-        $script('!{requireScript}', function() { $script(!{JSON.stringify(scripts)}, '!{app}'); });
-    if process.env.NODE_ENV === "development"
-      script.
-        $script('!{base}/livereload.js?snipver=1');
+  block scripts
+    script.
+      __webpack_public_path__=!{JSON.stringify(cdn)};
+      __env__=!{JSON.stringify(env)}
+    each script in scripts
+      script(src=script)
