@@ -4,6 +4,8 @@
   c.warn = c.warn || function(){};
 
   if (history.pushState) return;
+  
+  if (!window.HTMLElement) window.HTMLElement = window.Element;
 
   // if hashbang not found then convert link to hashbang mode
   if (window.location.hash.charAt(1) !== "!") {
