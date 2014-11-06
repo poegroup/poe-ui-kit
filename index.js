@@ -49,8 +49,7 @@ exports = module.exports = function(opts) {
     description: pkg.description,
     author: pkg.author,
     env: {
-      BROWSER_ENV: envs('NODE_ENV', 'production'),
-      API_URL: '/api'
+      BROWSER_ENV: envs('NODE_ENV', 'production')
     }
   });
 
