@@ -85,6 +85,8 @@ exports = module.exports = function(opts) {
     res.render('noscript');
   });
 
+  app.builder = require('directiv-core-builder')(app.get('root') + '/src');
+
   initBuilder(app);
 
   return app;
@@ -178,43 +180,44 @@ function initFeatureFlags(enabled) {
 
 function initBuilder(app) {
   if (!DEVELOPMENT) return;
-  var WebpackDevServer = require('webpack-dev-server');
-  var colors = require('colors');
-  var socketio = require('webpack-dev-server/node_modules/socket.io');
-  var config = require('directiv-core-builder')(app.get('root') + '/src');
-
-  var compiler = config.load();
-  var WEBPACK_DEBUG = typeof envs('WEBPACK_DEBUG') !== 'undefined';
-  var server = new WebpackDevServer(compiler, {
-    contentBase: false,
-    publicPath: '',
-    hot: true,
-    stats: WEBPACK_DEBUG
-  });
-
-  app.use('/build', 'webpack', server.app);
-
-  if (!WEBPACK_DEBUG) {
-    compiler.plugin('done', function(stats) {
-      var warns = stats.compilation.warnings;
-      if (warns.length) {
-        console.log('====WARNINGS====\n'.yellow);
-        warns.forEach(function(warn) {
-          console.warn(warn.module.context.yellow + ':\n' + warn.message + '\n');
-        })
-      }
-
-      var errs = stats.compilation.errors;
-      if (errs.length) {
-        console.error('====ERRORS====\n'.red);
-        errs.forEach(function(err) {
-          console.error(err.module.context.red + ':\n' + err.stack || err.message || err);
-        });
-      }
-    });
-  }
 
   app.on('ready', function(httpServer) {
+    var WebpackDevServer = require('webpack-dev-server');
+    var colors = require('colors');
+    var socketio = require('webpack-dev-server/node_modules/socket.io');
+    var config = app.builder;
+
+    var compiler = config.load();
+    var WEBPACK_DEBUG = typeof envs('WEBPACK_DEBUG') !== 'undefined';
+    var server = new WebpackDevServer(compiler, {
+      contentBase: false,
+      publicPath: '',
+      hot: true,
+      stats: WEBPACK_DEBUG
+    });
+
+    app.use('/build', 'webpack', server.app);
+
+    if (!WEBPACK_DEBUG) {
+      compiler.plugin('done', function(stats) {
+        var warns = stats.compilation.warnings;
+        if (warns.length) {
+          console.log('====WARNINGS====\n'.yellow);
+          warns.forEach(function(warn) {
+            console.warn(warn.module.context.yellow + ':\n' + warn.message + '\n');
+          })
+        }
+
+        var errs = stats.compilation.errors;
+        if (errs.length) {
+          console.error('====ERRORS====\n'.red);
+          errs.forEach(function(err) {
+            console.error(err.module.context.red + ':\n' + err.stack || err.message || err);
+          });
+        }
+      });
+    }
+
     server.io = socketio.listen(httpServer, {
       'log level': 1
     });
@@ -223,11 +226,11 @@ function initBuilder(app) {
       if(!this._stats) return;
       this._sendStats(socket, this._stats.toJson());
     }.bind(server));
-  });
 
-  process.on('SIGTERM', close);
-  process.on('SIGINT', close);
-  function close() {
-    server.middleware.close();
-  }
+    process.on('SIGTERM', close);
+    process.on('SIGINT', close);
+    function close() {
+      server.middleware.close();
+    }
+  });
 }

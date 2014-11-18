@@ -1,1 +1,1 @@
-module.exports = require('directiv-core-builder')(process.cwd() + '/src');
+module.exports = require(process.cwd()).builder;

@@ -29,8 +29,8 @@ node_modules: package.json
 
 prod:
 	@mkdir -p build
-	@SOURCE_MAP=1 MANIFEST=manifest.json DISABLE_MIN=1 webpack --config $(POE)/webpack.config.js --output-path build
-	@MANIFEST=manifest.min.json webpack --config $(POE)/webpack.config.js --output-path build
+	@PATH=$(PATH) SOURCE_MAP=1 MANIFEST=manifest.json DISABLE_MIN=1 webpack --config $(POE)/webpack.config.js --output-path build
+	@PATH=$(PATH) MANIFEST=manifest.min.json webpack --config $(POE)/webpack.config.js --output-path build
 
 ### Lint/test targets
 
