@@ -119,27 +119,28 @@ function loadPackage(root) {
 
 function initAssetLocals(cdn, root) {
   var manifests = {
-    pretty: {},
-    min: {}
+    pretty: null,
+    min: null
   };
-  function lookup(file, min) {
-    // var type = min ? 'min' : 'pretty';
-    // var group = manifests[type];
-    // if (!group) group = manifests[type] = require(root + '/manifest.json');
-    // var manifest = group[file];
-    // if (!manifest) manifest = group[file];
-    return file;
+
+  function lookup(min, base, file) {
+    var type = min ? 'min' : 'pretty';
+    var group = manifests[type];
+    if (!group) group = manifests[type] = require(root + '/manifest' + (min ? '.min' : '') + '.json');
+
+    if (!file) return Object.keys(group).map(lookup.bind(null, min, base));
+
+    var manifest = group[file];
+    if (!manifest) manifest = group[file];
+    return cdn + base + '/' + file;
   }
 
-  function scripts(min) {
+  function scripts(min, base) {
     if (DEVELOPMENT) return [
-      lookup('/build/main.js', min)
+      base + '/build/main.js'
     ];
 
-    return [
-      // lookup('/build/app-98efb1fe187401284857.js', min)
-      // TODO lookup the file for the current route they're hitting
-    ];
+    return lookup(min, base);
   }
 
   return function assetLocals(req, res, next) {
@@ -151,12 +152,12 @@ function initAssetLocals(cdn, root) {
 
     function asset(path, doMin) {
       if (typeof doMin === 'undefined') doMin = min;
-      return lookup(path, base, doMin);
+      return lookup(doMin, path);
     }
 
     res.locals({
       cdn: cdn + base + '/build',
-      scripts: scripts(min, base),
+      scripts: scripts(min, base + '/build'),
       base: base,
       pretty: !min,
       basePath: req.get('x-orig-path') || '/',
