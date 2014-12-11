@@ -137,7 +137,7 @@ function initAssetLocals(cdn, root) {
 
   function scripts(min, base) {
     if (DEVELOPMENT) return [
-      base + '/build/main.js'
+      base + '/main.js'
     ];
 
     return lookup(min, base);
