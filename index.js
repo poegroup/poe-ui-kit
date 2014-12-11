@@ -74,7 +74,7 @@ exports = module.exports = function(opts) {
   app.useBefore('router', stack.middleware.cookieParser());
 
   // set asset paths
-  app.useBefore('router', initAssetLocals(opts.cdn || envs('CDN_URL') || ''));
+  app.useBefore('router', initAssetLocals(opts.cdn || envs('CDN_URL') || '', root));
 
   // set enabled feature flags
   app.useBefore('router', initFeatureFlags(opts.enabledFeatures || envs('ENABLED_FEATURES') || ''));
