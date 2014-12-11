@@ -63,8 +63,7 @@ exports = module.exports = function(opts) {
 
   // serve static assets
   app.useBefore('router', '/build', 'build-headers', function(req, res, next) {
-    var env = req.get('x-env');
-    var maxAge = env === 'production' ? 31557600 : 0;
+    var maxAge = (req.get('x-env') || NODE_ENV) === 'production' ? 31557600 : 0;
     res.set('cache-control', 'public, max-age=' + maxAge);
     next();
   });
