@@ -130,9 +130,9 @@ function initAssetLocals(cdn, root) {
 
     if (!file) return Object.keys(group).map(lookup.bind(null, min, base));
 
-    var manifest = group[file];
-    if (!manifest) manifest = group[file];
-    return cdn + base + '/' + file;
+    var hashed = group[file];
+    if (!hashed) hashed = group[file];
+    return cdn + base + '/' + hashed;
   }
 
   function scripts(min, base) {
