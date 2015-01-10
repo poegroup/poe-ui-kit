@@ -22,6 +22,7 @@
   "homepage": "https://github.com/poegroup/poe-ui-kit",
   "dependencies": {
     "colors": "^0.6.2",
+    "directiv-core-builder": "^0.1.0",
     "envs": "^0.1.4",
     "jade": "^1.1.4",
     "simple-assets": "^0.1.0",

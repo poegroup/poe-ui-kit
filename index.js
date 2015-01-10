@@ -204,7 +204,7 @@ function initBuilder(app) {
         if (warns.length) {
           console.log('====WARNINGS====\n'.yellow);
           warns.forEach(function(warn) {
-            console.warn(warn.module.context.yellow + ':\n' + warn.message + '\n');
+            console.warn(((warn.module || {}).context || '').yellow + ':\n' + warn.message + '\n');
           })
         }
 
@@ -212,7 +212,7 @@ function initBuilder(app) {
         if (errs.length) {
           console.error('====ERRORS====\n'.red);
           errs.forEach(function(err) {
-            console.error(err.module.context.red + ':\n' + err.stack || err.message || err);
+            console.error((err.module || {}).context.red + ':\n' + err.stack || err.message || err);
           });
         }
       });
