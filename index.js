@@ -182,7 +182,7 @@ function initBuilder(app) {
   if (!DEVELOPMENT) return;
 
   app.on('ready', function(httpServer) {
-    var WebpackDevServer = require('webpack-dev-server');
+    var WebpackDevServer = require(process.cwd() + '/node_modules/webpack-dev-server');
     var colors = require('colors');
     var socketio = require('webpack-dev-server/node_modules/socket.io');
     var config = app.builder;
