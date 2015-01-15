@@ -41,7 +41,7 @@ exports = module.exports = function(opts) {
 
   // use jade as the view engine
   app.set('view engine', 'jade');
-  app.set('views', test);
+  app.set('views', entry);
   app.engine('jade', require('jade').__express);
 
   // load the package.json for locals
