@@ -29,6 +29,7 @@ exports = module.exports = function(opts) {
 
   // get the root of the app
   var root = opts.root || process.cwd();
+  var entry = root + '/' + (opts.entry || 'src');
 
   // create the app
   var app = stack({
@@ -40,7 +41,7 @@ exports = module.exports = function(opts) {
 
   // use jade as the view engine
   app.set('view engine', 'jade');
-  app.set('views', root + '/src');
+  app.set('views', test);
   app.engine('jade', require('jade').__express);
 
   // load the package.json for locals
@@ -84,7 +85,7 @@ exports = module.exports = function(opts) {
     res.render('noscript');
   });
 
-  app.builder = require('directiv-core-builder')(app.get('root') + '/' + (opts.entry || 'src'));
+  app.builder = require('directiv-core-builder')(entry);
 
   app.builder.resolve.extensions.push('.jade');
   app.builder.addLoader('jade', ['onus', 'es6', 'ast2template', 'jade2ast']);
