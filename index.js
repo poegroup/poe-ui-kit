@@ -84,7 +84,7 @@ exports = module.exports = function(opts) {
     res.render('noscript');
   });
 
-  app.builder = require('directiv-core-builder')(app.get('root') + '/src');
+  app.builder = require('directiv-core-builder')(app.get('root') + '/' + (opts.entry || 'src'));
 
   app.builder.resolve.extensions.push('.jade');
   app.builder.addLoader('jade', ['onus', 'es6', 'ast2template', 'jade2ast']);
