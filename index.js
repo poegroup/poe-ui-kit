@@ -88,7 +88,7 @@ exports = module.exports = function(opts) {
   app.builder = require('directiv-core-builder')(entry);
 
   app.builder.resolve.extensions.push('.jade');
-  app.builder.addLoader('jade', ['onus', 'es6', 'ast2template', 'jade2ast']);
+  app.builder.addLoader('jade', ['react-component-loader', 'onus-loader', 'es6-loader', 'ast2template-loader', 'jade2ast-loader']);
 
   initBuilder(app);
 
