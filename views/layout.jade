@@ -26,6 +26,8 @@ html
     block meta
 
     block styles
+      each style in styles
+        link(href=style rel='stylesheet')
 
     //- add any extra head elements with the 'head' block
     block head
@@ -43,7 +45,9 @@ html
 
   block scripts
     script.
-      __webpack_public_path__=!{JSON.stringify(cdn)};
+      __webpack_public_path__=!{JSON.stringify(cdn + '/')};
       __env__=!{JSON.stringify(env)}
     each script in scripts
       script(src=script)
+    each script in chunks
+      script(src=script async)

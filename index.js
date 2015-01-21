@@ -123,24 +123,19 @@ function initAssetLocals(cdn, root) {
     min: null
   };
 
-  function lookup(min, base, file) {
-    var type = min ? 'min' : 'pretty';
-    var group = manifests[type];
-    if (!group) group = manifests[type] = require(root + '/manifest' + (min ? '.min' : '') + '.json');
+  function lookup(min, base, type) {
+    var manifest = min ? 'min' : 'pretty';
+    var types = manifests[manifest];
+    if (!types) types = manifests[manifest] = require(root + '/manifest' + (min ? '.min' : '') + '.json');
 
-    if (!file) return Object.keys(group).map(lookup.bind(null, min, base));
-
-    var hashed = group[file];
-    if (!hashed) hashed = group[file];
-    return cdn + base + '/' + hashed;
+    return types[type].map(function(path) {
+      return cdn + base + '/' + path;
+    });
   }
 
-  function scripts(min, base) {
-    if (DEVELOPMENT) return [
-      base + '/main.js'
-    ];
-
-    return lookup(min, base);
+  function format(min, base, type, fallback) {
+    if (DEVELOPMENT) return fallback;
+    return lookup(min, base, type)
   }
 
   return function assetLocals(req, res, next) {
@@ -150,18 +145,14 @@ function initAssetLocals(cdn, root) {
 
     if (base === '/') base = '';
 
-    function asset(path, doMin) {
-      if (typeof doMin === 'undefined') doMin = min;
-      return lookup(doMin, path);
-    }
-
     res.locals({
       cdn: cdn + base + '/build',
-      scripts: scripts(min, base + '/build'),
+      scripts: format(min, base + '/build', 'scripts', [base + '/main.js']),
+      styles: format(min, base + '/build', 'styles', []),
+      chunks: format(min, base + '/build', 'chunks', []),
       base: base,
       pretty: !min,
-      basePath: req.get('x-orig-path') || '/',
-      asset: asset
+      basePath: req.get('x-orig-path') || '/'
     });
     next();
   };
