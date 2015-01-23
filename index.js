@@ -147,7 +147,7 @@ function initAssetLocals(cdn, root) {
 
     res.locals({
       cdn: cdn + base + '/build',
-      scripts: format(min, base + '/build', 'scripts', [base + '/main.js']),
+      scripts: format(min, base + '/build', 'scripts', [base + '/build/main.js']),
       styles: format(min, base + '/build', 'styles', []),
       chunks: format(min, base + '/build', 'chunks', []),
       base: base,
