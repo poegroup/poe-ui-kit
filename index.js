@@ -89,6 +89,11 @@ exports = module.exports = function(opts) {
 
   initBuilder(app);
 
+  app.builder.addLoader('woff', 'url-loader?limit=10000&mimetype=application/font-woff');
+  app.builder.addLoader('tff', 'url-loader?limit=10000&mimetype=application/octet-stream');
+  app.builder.addLoader('eot', 'file-loader');
+  app.builder.addLoader('svg', 'url-loader?limit=10000&mimetype=image/svg+xml');
+
   return app;
 };
 
