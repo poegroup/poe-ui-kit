@@ -112,7 +112,7 @@ function loadPackage(root) {
 
 function initAssetLocals(cdn) {
   function lookup(file, base, min) {
-    return cdn + base + '/' + assets(file, min);
+    return base + '/' + assets(file, min);
   }
 
   function styles(min, base) {
@@ -133,6 +133,7 @@ function initAssetLocals(cdn) {
     var base = urlparse(req.base).pathname;
 
     if (base === '/') base = '';
+    base = (req.get('x-cdn-url') || cdn || '') + base;
 
     function asset(path, doMin) {
       if (typeof doMin === 'undefined') doMin = min;
