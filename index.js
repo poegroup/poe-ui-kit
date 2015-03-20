@@ -64,7 +64,7 @@ exports = module.exports = function(opts) {
 
   // serve static assets
   app.useBefore('router', '/build', 'build-headers', function(req, res, next) {
-    var maxAge = (req.get('x-env') || NODE_ENV) === 'production' ? 31557600 : 0;
+    var maxAge = (req.get('x-env') || req.query._env || NODE_ENV) === 'production' ? 31557600 : 0;
     res.set('cache-control', 'public, max-age=' + maxAge);
     next();
   });
@@ -144,7 +144,7 @@ function initAssetLocals(cdn, root) {
   }
 
   return function assetLocals(req, res, next) {
-    var min = (req.get('x-env') || NODE_ENV) === 'production';
+    var min = (req.get('x-env') || req.query._env || NODE_ENV) === 'production';
 
     var base = urlparse(req.base).pathname;
 
