@@ -64,7 +64,7 @@ exports = module.exports = function(opts) {
 
   // serve static assets
   app.useBefore('router', '/build', 'build-headers', function(req, res, next) {
-    var maxAge = (req.get('x-env') || req.query._env || NODE_ENV) === 'production' ? 31557600 : 0;
+    var maxAge = getEnv(req) === 'production' ? 31557600 : 0;
     res.set('cache-control', 'public, max-age=' + maxAge);
     next();
   });
@@ -140,11 +140,11 @@ function initAssetLocals(cdn, root) {
 
   function format(min, base, type, fallback) {
     if (DEVELOPMENT) return fallback;
-    return lookup(min, base, type)
+    return lookup(min, base, type);
   }
 
   return function assetLocals(req, res, next) {
-    var min = (req.get('x-env') || req.query._env || NODE_ENV) === 'production';
+    var min = getEnv(req) === 'production';
 
     var base = urlparse(req.base).pathname;
 
@@ -169,10 +169,14 @@ function initAssetLocals(cdn, root) {
 
 function initFeatureFlags(enabled) {
   return function features(req, res, next) {
-    if (req.get('x-env') !== 'production') return next();
+    if (getEnv(req) !== 'production') return next();
     if (enabled && enabled !== req.cookies.features) res.cookie('features', enabled);
     next();
   };
+}
+
+function getEnv(req) {
+  return req.query._env || req.get('x-env') || NODE_ENV;
 }
 
 function initBuilder(app) {
