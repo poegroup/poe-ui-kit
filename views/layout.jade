@@ -40,7 +40,7 @@ html
       script(src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.1.0/es5-shim.min.js")
       | <![endif]-->
     script.
-      __app_path__=!{base};__build_path__=!{JSON.stringify(cdn + '/')};__env__=!{JSON.stringify(env)}
+      __app_path__=!{JSON.stringify(base)};__build_path__=!{JSON.stringify(cdn + '/')};__env__=!{JSON.stringify(env)}
 
   body
     block content
