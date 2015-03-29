@@ -39,14 +39,13 @@ html
       script(src="https://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js")
       script(src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.1.0/es5-shim.min.js")
       | <![endif]-->
+    script.
+      __app_path__=!{base};__build_path__=!{JSON.stringify(cdn + '/')};__env__=!{JSON.stringify(env)}
 
   body
     block content
 
   block scripts
-    script.
-      __webpack_public_path__=!{JSON.stringify(cdn + '/')};
-      __env__=!{JSON.stringify(env)}
     each script in scripts
       script(src=script)
     each script in chunks
