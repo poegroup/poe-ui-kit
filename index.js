@@ -122,13 +122,13 @@ function loadPackage(root) {
  * Initialize the asset locals middleware
  */
 
-function initAssetLocals(cdn, root) {
+function initAssetLocals(defaultCdn, root) {
   var manifests = {
     pretty: null,
     min: null
   };
 
-  function lookup(min, base, type) {
+  function lookup(cdn, min, base, type) {
     var manifest = min ? 'min' : 'pretty';
     var types = manifests[manifest];
     if (!types) types = manifests[manifest] = require(root + '/manifest' + (min ? '.min' : '') + '.json');
@@ -138,13 +138,14 @@ function initAssetLocals(cdn, root) {
     });
   }
 
-  function format(min, base, type, fallback) {
+  function format(cdn, min, base, type, fallback) {
     if (DEVELOPMENT) return fallback;
-    return lookup(min, base, type);
+    return lookup(cdn, min, base, type);
   }
 
   return function assetLocals(req, res, next) {
     var min = getEnv(req) === 'production';
+    var cdn = req.get('x-cdn') || defaultCdn;
 
     var base = urlparse(req.base).pathname;
 
@@ -152,9 +153,9 @@ function initAssetLocals(cdn, root) {
 
     res.locals({
       cdn: cdn + base + '/build',
-      scripts: format(min, base + '/build', 'scripts', [base + '/build/main.js']),
-      styles: format(min, base + '/build', 'styles', []),
-      chunks: format(min, base + '/build', 'chunks', []),
+      scripts: format(cdn, min, base + '/build', 'scripts', [base + '/build/main.js']),
+      styles: format(cdn, min, base + '/build', 'styles', []),
+      chunks: format(cdn, min, base + '/build', 'chunks', []),
       base: base,
       pretty: !min,
       basePath: req.get('x-orig-path') || '/'
