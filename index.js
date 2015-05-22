@@ -59,13 +59,11 @@ exports = module.exports = function(opts) {
   };
 
   // serve static assets
-  app.useBefore('router', '/build', 'build-headers', function(req, res, next) {
-    var env = req.get('x-env');
-    var maxAge = env === 'production' ? 31557600 : 0;
-    res.set('cache-control', 'public, max-age=' + maxAge);
-    next();
+  app.useBefore('router', '/build', function build(req, res, next) {
+    stack.middleware.static(opts.root + '/build', {
+      maxAge: req.get('x-env') === 'production' ? 31557600 : 0
+    })(req, res, next);
   });
-  app.useBefore('router', '/build', 'build', stack.middleware.static(root + '/build'));
 
   // setup the cookie parser
   app.useBefore('router', stack.middleware.cookieParser());
