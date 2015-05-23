@@ -60,7 +60,7 @@ exports = module.exports = function(opts) {
 
   // serve static assets
   app.useBefore('router', '/build', function build(req, res, next) {
-    stack.middleware.static(opts.root + '/build', {
+    stack.middleware.static(root + '/build', {
       maxAge: req.get('x-env') === 'production' ? 31557600 : 0
     })(req, res, next);
   });
